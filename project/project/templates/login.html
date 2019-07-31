@@ -1,0 +1,28 @@
+
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+ <form action="" method=post class="form-horizontal">
+     <h2>Sign In <a href = "{{url_for('register') }}">Sign Up</a></h2>
+    <div class="control-group">
+        <div class="controls">
+          <input type="text" id="username" name="username" class="input-xlarge"
+            placeholder="Enter Username" required maxlength="40">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+          <input type="password" id="password" name="password" class="input-xlarge"
+            placeholder="Enter Password" required minlength="8" maxlength="30">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+          <button type="submit" class="btn btn-success">Signin</button>
+        </div>
+    </div>
+  </form>
+{% endblock %}
