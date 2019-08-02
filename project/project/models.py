@@ -1,4 +1,8 @@
 from project import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from time import time
+import jwt
+from project import app
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -6,22 +10,54 @@ ROLE_ADMIN = 1
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(40), index = True, unique = True)
-    password = db.Column(db.String(30))
+    password_hash = db.Column(db.String(128))
     email = db.Column(db.String(60), index = True, unique = True)
     role = db.Column(db.SmallInteger, default=ROLE_USER)
     posts = db.relationship("Post", backref="author", lazy=True)
 
+
     def is_authenticated(self):
+        '''Required Flask-Login User model
+
+        '''
         return True
 
     def is_active(self):
+        '''Required Flask-Login User model
+
+        '''
         return True
 
     def is_anonymous(self):
+        '''Required Flask-Login User model
+
+        '''
         return False
 
     def get_id(self):
+        '''Required Flask-Login User model
+
+        '''
         return str(self.id)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode({"reset_password": self.id, "exp": time() + expires_in},
+                          app.config["SECRET_KEY"], algorithm="HS256").decode("utf-8")
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config["SECRET_KEY"],
+                            algorithms=["HS256"])["reset_password"]
+        except:
+            return
+        return User.query.get(id)
 
     def __repr__(self):
         return "<User %r>" % self.nickname

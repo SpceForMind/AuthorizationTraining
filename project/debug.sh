@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# setup path to the application
-export FLASK_APP=project
+# setup path to the flask shell application
+export FLASK_APP=project.auth_training.py
 
 # setup mode
 export FLASK_ENV=development
@@ -9,5 +9,5 @@ export FLASK_ENV=development
 # install project in virtual enviroment(searching for setup.py)
 pip3 install -e .
 
-# run the application
-flask run
+# activate flask shell
+flask shell
