@@ -3,8 +3,33 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{your-app-id}',
+      cookie     : true,
+      xfbml      : true,
+      version    : '{api-version}'
+    });
+
+    FB.AppEvents.logPageView();
+
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
  <form action="" method=post class="form-horizontal">
      <h2>Sign In <a href = "{{url_for('register') }}">Sign Up</a></h2>
+     {% for message in get_flashed_messages() %}
+            <p><span style = "color: red;"><b>Error</b>: {{ message }}</span></p>
+     {% endfor %}
     <div class="control-group">
         <div class="controls">
           <input type="text" id="username" name="username" class="input-xlarge"
@@ -24,6 +49,9 @@
           <button type="submit" class="btn btn-success">Signin</button>
         </div>
     </div>
+     <div>
+         <p><a href="{{ url_for('oauth_authorize', provider='facebook') }}">Login with Facebook</a></p>
+     </div>
      <p>
         Forgot Your Password?
         <a href="{{ url_for('reset_password_request') }}">Click to Reset It</a>

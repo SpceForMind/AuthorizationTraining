@@ -1,44 +1,23 @@
 from project import db
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from time import time
 import jwt
 from project import app
 
 ROLE_USER = 0
-ROLE_ADMIN = 1
+ROLE_OAUTH_USER = 1
+ROLE_ADMIN = 2
 
-class User(db.Model):
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(40), index = True, unique = True)
+    social_id = db.Column(db.String(64), index=True, unique=True, nullable=True)
+    nickname = db.Column(db.String(40), index = True, unique = True, nullable=False)
     password_hash = db.Column(db.String(128))
-    email = db.Column(db.String(60), index = True, unique = True)
+    email = db.Column(db.String(60), index = True, unique=False, nullable=True)
     role = db.Column(db.SmallInteger, default=ROLE_USER)
     posts = db.relationship("Post", backref="author", lazy=True)
-
-
-    def is_authenticated(self):
-        '''Required Flask-Login User model
-
-        '''
-        return True
-
-    def is_active(self):
-        '''Required Flask-Login User model
-
-        '''
-        return True
-
-    def is_anonymous(self):
-        '''Required Flask-Login User model
-
-        '''
-        return False
-
-    def get_id(self):
-        '''Required Flask-Login User model
-
-        '''
-        return str(self.id)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

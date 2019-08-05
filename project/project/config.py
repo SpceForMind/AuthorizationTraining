@@ -19,3 +19,12 @@ class Config(object):
     MAIL_USERNAME = "spaceformind19@gmail.com"
     MAIL_PASSWORD = _MAIL_PASSWORD
     ADMINS = ['spaceformind19@gmail.com']
+
+    OAUTH_CREDENTIALS = {
+        'facebook': {
+            'id': '2365857986826968',
+            'secret': 'ffbb70776d613f668e395a2affd94ef7'
+        }
+    }
+
+    SERVER_NAME = os.environ.get("SERVER_NAME") or "localhost:5000"
