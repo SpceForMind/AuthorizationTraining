@@ -1,7 +1,7 @@
 # AuthorizationTraining
 
 ### Authorization types:
-+ Base sing up/ sing in
++ Base sign up/ sign in
 + OAuth2.0 via Github/Facebook
 
 ### Security and Data recovery
