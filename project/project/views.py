@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash
 from project import app, db, lm
 from project.forms import LoginForm, ResetPasswordRequestForm, ResetPasswordForm
 from project.models import User, ROLE_USER, ROLE_ADMIN
-from project.mail import send_password_reset_email
+from project.mail import send_password_reset_email, send_confirm_email
 from project.oauth import OAuthSignIn
 
 @app.route('/')
@@ -77,15 +77,12 @@ def register():
         return redirect(url_for("register"))
 
     if User.query.filter_by(email=request.form["email"]).first() is not None:
-        flash("Email %s already bind to existing account" % request.form["email"])
-        return redirect(url_for("register"))
+        flash("User with email %s already registrated" % request.form["email"])
 
-    user = User(nickname=request.form["username"], email=request.form["email"],
-                role=ROLE_USER)
+    user = User(nickname=request.form["username"], email=request.form["email"], role=ROLE_USER)
     user.set_password(request.form["password"])
-    db.session.add(user)
-    db.session.commit()
-    flash("User successfully registrated")
+    send_confirm_email(user=user)
+    flash("Check received email address for confirm registration")
 
     return redirect(url_for("login"))
 
@@ -98,6 +95,11 @@ def logout():
 
 @app.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():
+    '''Reset password request function
+
+    :return GET - reset password form; POST - send mail at the received mail with crypto token
+    put in the mail link:
+    '''
     if current_user.is_authenticated:
         return redirect(url_for("index"))
 
@@ -116,6 +118,11 @@ def reset_password_request():
 
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
+    '''Reset password function
+
+    :param token - is a token whick was received by <reser_password_request> function:
+    :return GET - reset password page; POST - redirect to login page:
+    '''
     if current_user.is_authenticated:
         return redirect(url_for("index"))
 
@@ -135,31 +142,56 @@ def reset_password(token):
                            form=form)
 
 
+@app.route("/confirm_email_registration/<token>")
+def confirm_email_registration(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+
+    user = User.verify_confirm_email_token(token=token)
+    if not user:
+        return redirect(url_for("index"))
+
+    db.session.add(user)
+    db.session.commit()
+    flash("Email has been confirmed successfully")
+
+    return redirect(url_for("login"))
+
 @app.route("/authorize/<provider>/")
 def oauth_authorize(provider):
+    '''Common function for user authorize through @provider
+
+    :param provider is a Auth2.0 provider:
+    :return call function whick make redirect to @provider authorize page:
+    '''
     if not current_user.is_anonymous:
         return redirect(url_for("index"))
 
     oauth = OAuthSignIn.get_provider(provider)
-    print(oauth)
+    print("AUTORIZE", oauth)
     return oauth.authorize()
 
 
 @app.route("/callback/<provider>/")
 def oauth_callback(provider):
+    '''Common function for @provider callback OAuth2.0 stage
+
+    :param provider is a OAuth2.0 provider:
+    :return redirect to home page:
+    '''
     if not current_user.is_anonymous:
         return redirect(url_for("index"))
 
     oauth = OAuthSignIn.get_provider(provider)
     print(oauth)
-    social_id, username, email = oauth.callback()
+    social_id, username = oauth.callback()
     if social_id is None:
         flash("Authentication failed.")
         return redirect(url_for("index"))
 
     user = User.query.filter_by(social_id=social_id).first()
     if user is None:
-        user = User(social_id=social_id, nickname=username, email=email)
+        user = User(social_id=social_id, nickname=username)
         db.session.add(user)
         db.session.commit()
 

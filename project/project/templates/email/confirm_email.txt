@@ -1,0 +1,10 @@
+Уважаемый {{ user.nickname }},
+
+    Чтобы подтвердить регистрацию, наажмите на сслыку ниже
+    {{ url_for('confirm_email_registration', token = token, _external=True) }}
+
+Кроме того, вы можете вставить следующую ссылку в адресную строку браузера:
+{{ url_for('confirm_email_registration', token=token, _external=True) }}
+Если вы не регистрировались в этом приложении, просто проигнорируйте это сообщение.
+С Уважением,
+Команда AuthTraining

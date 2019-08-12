@@ -38,6 +38,27 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
+    def get_confirm_email_token(self, expires_in=600):
+        return jwt.encode(
+            {"confirm_email": {"nickname": self.nickname, "password_hash": self.password_hash,
+                               "email": self.email}, "exp": time() + expires_in},
+            app.config["SECRET_KEY"], algorithm="HS256").decode("utf-8")
+
+    @staticmethod
+    def verify_confirm_email_token(token):
+        '''
+
+        :param token:
+        :return new object <User>:
+        '''
+        try:
+            user_cfg = jwt.decode(token, app.config["SECRET_KEY"],
+                                  algorithms=["HS256"])["confirm_email"]
+            return User(nickname=user_cfg["nickname"], password_hash=user_cfg["password_hash"],
+                        email=user_cfg["email"])
+        except:
+            return
+
     def __repr__(self):
         return "<User %r>" % self.nickname
 

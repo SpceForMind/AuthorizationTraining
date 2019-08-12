@@ -24,6 +24,10 @@ class Config(object):
         'facebook': {
             'id': '2365857986826968',
             'secret': 'ffbb70776d613f668e395a2affd94ef7'
+        },
+        "github": {
+            "id": "e863cc5cca6fb1366dda",
+            "secret": "43b4b37e870f3dad2e9d45e7283d96a998188923"
         }
     }
 
