@@ -11,7 +11,7 @@ setup(
         "Flask-WTF==0.14.2",
         "Flask-Migrate==2.5.2",
         "rauth==0.7.3",
-        "Werkzeug==0.15.5",
+        "Werkzeug==2.2.3",
         "WTForms==2.2.1"
     ]
 )
